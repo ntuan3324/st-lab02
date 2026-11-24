@@ -1,0 +1,16 @@
+test_case_id,requirement_id,condition_id,scenario_id,title,priority,precondition,fixture_key,operation,input_json,assertion,expected_type,expected_json,expected_error
+TC-CAT-001,REQ-01,COND-CAT-01,TS-CAT-01,Truy vấn SKU active,P1,Product A active,600k,get_catalog,{"sku":"A"},equals,string,Wireless Mouse,
+TC-CAT-002,REQ-01,COND-CAT-02,TS-CAT-02,Truy vấn SKU không tồn tại,P1,Catalog default,600k,get_catalog,{"sku":"Z"},equals,string,ERROR:PRODUCT_UNAVAILABLE,PRODUCT_UNAVAILABLE
+TC-CAT-003,REQ-01,COND-CAT-02,TS-CAT-02,Truy vấn SKU inactive,P1,Product A inactive,inactive_A,get_catalog,{"sku":"A"},equals,string,ERROR:PRODUCT_UNAVAILABLE,PRODUCT_UNAVAILABLE
+TC-CRT-001,REQ-02,COND-CRT-01,TS-CRT-01,Thêm SKU mới số lượng dương,P1,Giỏ rỗng,empty_cart,cart_add,"{""sku"":""A"",""quantity"":2}",equals,string,2,
+TC-CRT-002,REQ-02,COND-CRT-01,TS-CRT-01,Cộng dồn số lượng SKU trùng,P1,Giỏ đã có A qty 2,cart_with_A2,cart_add,"{""sku"":""A"",""quantity"":3}",equals,string,5,
+TC-CRT-003,REQ-02,COND-CRT-02,TS-CRT-02,Thêm số lượng âm hoặc 0,P0,Giỏ rỗng,empty_cart,cart_add,"{""sku"":""A"",""quantity"":0}",equals,string,ERROR:INVALID_QUANTITY,INVALID_QUANTITY
+TC-CRT-004,REQ-02,COND-CRT-02,TS-CRT-02,Thêm số lượng kiểu float,P1,Giỏ rỗng,empty_cart,cart_add,"{""sku"":""A"",""quantity"":1.5}",equals,string,ERROR:INVALID_QUANTITY,INVALID_QUANTITY
+TC-PRC-001,REQ-03,COND-PRC-01,TS-PRC-01,Subtotal giỏ rỗng,P2,Giỏ rỗng,empty_cart,cart_subtotal,{},equals,string,0,
+TC-PRC-002,REQ-03,COND-PRC-02,TS-PRC-02,Subtotal nhiều mặt hàng,P1,Giỏ A qty 3 B qty 1,900k,cart_subtotal,{},equals,string,900000,
+TC-PRC-003,REQ-03,COND-PRC-02,TS-PRC-02,Subtotal giá lẻ Decimal,P1,Giỏ 499k99,499999,cart_subtotal,{},equals,string,499999,
+TC-PRO-001,REQ-05,COND-PRO-01,TS-PRO-01,Voucher chưa đăng nhập,P0,Unauthenticated user,unauth_user,apply_voucher,{"code":"SAVE10"},equals,string,ERROR:LOGIN_REQUIRED,LOGIN_REQUIRED
+TC-PRO-002,REQ-05,COND-PRO-02,TS-PRO-02,Voucher đã dùng trước đó,P1,User code in used_codes,used_voucher_user,apply_voucher,{"code":"SAVE10"},equals,string,ERROR:VOUCHER_USED,VOUCHER_USED
+TC-PRO-003,REQ-07,COND-PRO-03,TS-PRO-03,Voucher không tồn tại,P1,Authenticated user,600k,apply_voucher,{"code":"INVALID_CODE"},equals,string,ERROR:INVALID_VOUCHER,INVALID_VOUCHER
+TC-PRO-004,REQ-07,COND-PRO-04,TS-PRO-04,Ghi nhận voucher khi order COD thành công,P0,Auth user giỏ 600k,600k,checkout_cod,{"voucher":"SAVE10"},voucher_marked_used,string,USED,
+TC-PRO-005,REQ-07,COND-PRO-04,TS-PRO-04,Không ghi nhận voucher khi Online payment Declined,P0,Auth user giỏ 600k,600k,checkout_declined,{"voucher":"SAVE10"},voucher_not_used,string,NOT_USED,PAYMENT_DECLINED

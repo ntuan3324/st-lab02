@@ -1,0 +1,38 @@
+Requirement ID	Condition ID	Test Condition	Scenario ID	Test Scenario
+REQ-01	COND-CAT-01	Sản phẩm đang active trong hệ thống	TS-CAT-01	Truy vấn sản phẩm active hợp lệ
+REQ-01	COND-CAT-02	Sản phẩm inactive hoặc không tồn tại	TS-CAT-02	Truy vấn sản phẩm inactive / SKU lạ
+REQ-02	COND-CRT-01	Số lượng hợp lệ (nguyên dương)	TS-CRT-01	Thêm SKU mới và cộng dồn SKU đã có
+REQ-02	COND-CRT-02	Số lượng không hợp lệ (<1 hoặc thập phân hoặc sai kiểu)	TS-CRT-02	Thêm số lượng âm hoặc bằng 0 hoặc kiểu số thực
+REQ-03	COND-PRC-01	Tính toán subtotal đơn sản phẩm	TS-PRC-01	Subtotal với 1 sản phẩm duy nhất
+REQ-03	COND-PRC-02	Tính toán subtotal đa sản phẩm & độ chính xác Decimal	TS-PRC-02	Subtotal giỏ nhiều mặt hàng với giá lẻ Decimal
+REQ-05	COND-PRO-01	Trạng thái đăng nhập tài khoản	TS-PRO-01	Áp dụng mã khi chưa đăng nhập / đã đăng nhập
+REQ-05	COND-PRO-02	Trạng thái đã sử dụng của mã	TS-PRO-02	Áp dụng mã đã nằm trong used_codes
+REQ-07	COND-PRO-03	Tính đúng đắn của mã voucher	TS-PRO-03	Sử dụng mã voucher không tồn tại
+REQ-07	COND-PRO-04	Thời điểm đánh dấu mã đã dùng (Lifecycle & Rollback)	TS-PRO-04	Kiểm tra trạng thái mã khi checkout thành công vs payment declined
+
+
+REQ-01 (Catalog):
+Mô tả và Quy tắc: Thuộc module Catalog. Quy tắc nghiệp vụ yêu cầu chỉ những sản phẩm có trạng thái active mới được phép truy vấn để mua. Nếu sản phẩm không tồn tại hoặc không active, hệ thống phải từ chối và ném ra ngoại lệ PRODUCT_UNAVAILABLE.   
+Tiền điều kiện và Dữ liệu ra/vào: Dữ liệu danh mục sản phẩm trong hệ thống đã được khởi tạo. Đầu vào của hàm là mã định danh sản phẩm (sku), đầu ra trả về đối tượng sản phẩm (Product) hợp lệ hoặc ném lỗi PRODUCT_UNAVAILABLE.   
+Rủi ro và Làm rõ: Rủi ro lớn nhất là người dùng có thể mua nhầm các sản phẩm đã ngừng kinh doanh hoặc tạm khóa nếu hệ thống thiếu kiểm tra cờ active.   
+
+REQ-02 (Cart):
+Mô tả và Quy tắc: Thuộc module Cart. Quy tắc quy định số lượng sản phẩm thêm vào giỏ phải là số nguyên dương > 1 ; nếu cùng một mã SKU được thêm nhiều lần thì hệ thống phải cộng dồn số lượng. Nếu số lượng không hợp lệ (như số âm, bằng 0 hoặc số thập phân), hệ thống sẽ ném lỗi INVALID_QUANTITY.   
+Tiền điều kiện và Dữ liệu ra/vào: Sản phẩm được thêm vào giỏ phải tồn tại và active. Đầu vào nhận vào sku và quantity, đầu ra cập nhật danh sách dòng giỏ hàng (CartLine) hoặc phát sinh ngoại lệ INVALID_QUANTITY.   
+Rủi ro và Làm rõ: Tránh việc hệ thống cho phép số lượng âm làm giảm tiền đơn hàng một cách sai trái hoặc ghi đè số lượng thay vì cộng dồn.   
+
+REQ-03 (Pricing):
+Mô tả và Quy tắc: Thuộc module Pricing. Quy tắc yêu cầu giá trị tạm tính (subtotal) phải bằng tổng của giá nhân với số lượng, và bắt buộc phải tính toán bằng kiểu dữ liệu Decimal.   
+Tiền điều kiện và Dữ liệu ra/vào: Giỏ hàng đã được khởi tạo. Đầu vào là danh sách các CartLine trong giỏ, đầu ra trả về giá trị subtotal kiểu Decimal.   
+Rủi ro và Làm rõ: Việc sử dụng kiểu float thay vì Decimal có thể gây ra lỗi làm tròn số học (floating-point precision error) dẫn đến sai lệch về tiền tệ.   
+
+REQ-05 (Promotion):
+Mô tả và Quy tắc: Thuộc module Promotion. Quy tắc quy định mã giảm giá SAVE10 chỉ được áp dụng cho tài khoản đã đăng nhập (authenticated = True) và mã đó chưa từng được sử dụng trước đó bởi tài khoản này (used_codes). Nếu chưa đăng nhập sẽ báo lỗi LOGIN_REQUIRED, nếu đã dùng sẽ báo lỗi VOUCHER_USED.   
+Tiền điều kiện và Dữ liệu ra/vào: Mã khuyến mãi tồn tại và đang active trong hệ thống. Đầu vào gồm mã code, giá trị subtotal và đối tượng customer, đầu ra trả về số tiền được giảm hoặc các ngoại lệ tương ứng.   
+Rủi ro và Làm rõ: Ngăn chặn việc khách vãng lai lạm dụng mã hoặc một tài khoản gian lận dùng lại mã giảm giá nhiều lần.   
+
+REQ-07 (Promotion / Order Lifecycle):
+Mô tả và Quy tắc: Thuộc module Promotion và Order Lifecycle. Quy tắc yêu cầu các mã không hợp lệ hoặc đã dùng phải bị từ chối; mã chỉ được chính thức đánh dấu là đã sử dụng (used) sau khi đơn hàng được đặt thành công. Nếu thanh toán trực tuyến bị từ chối (declined), mã khuyến mãi tuyệt đối không được đánh dấu là đã dùng.   
+Tiền điều kiện và Dữ liệu ra/vào: Khách hàng đã đăng nhập, giỏ hàng hợp lệ và có yêu cầu áp dụng mã. Đầu vào là quá trình đặt hàng qua phương thức checkout, đầu ra tạo đơn hàng thành công kèm cập nhật used_codes, hoặc giữ nguyên trạng thái used_codes nếu giao dịch thất bại.   
+Rủi ro và Làm rõ: Tránh việc hệ thống đánh dấu mã đã sử dụng ngay trước bước thanh toán, khiến khách hàng bị mất oan mã giảm giá khi giao dịch ngân hàng gặp sự cố lỗi.   
+
