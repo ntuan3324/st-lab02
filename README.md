@@ -35,8 +35,8 @@ Bài làm lựa chọn **05 requirement** mới (không bao gồm `REQ-06`, `REQ
 | :--- | :--- | :--- |
 | **REQ-01** | Catalog | Chỉ sản phẩm `active` mới có thể truy vấn để mua. |
 | **REQ-02** | Cart | Số lượng thêm vào giỏ là số nguyên dương; cộng dồn cùng SKU. |
-| **REQ-03** | Pricing | Subtotal = Σ price × quantity, tính bằng `Decimal`[cite: 1]. |
-| **REQ-05** | Promotion | `SAVE10` chỉ áp dụng cho tài khoản đã đăng nhập và chưa dùng mã[cite: 1]. |
+| **REQ-03** | Pricing | Subtotal = Σ price × quantity, tính bằng `Decimal`. |
+| **REQ-05** | Promotion | `SAVE10` chỉ áp dụng cho tài khoản đã đăng nhập và chưa dùng mã. |
 | **REQ-07** | Promotion | Mã không hợp lệ hoặc đã dùng bị từ chối; chỉ đánh dấu `used` sau khi order thành công. |
 ---
 
